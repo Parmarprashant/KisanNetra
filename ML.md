@@ -70,52 +70,430 @@ A 31st implicit label, `Unknown`, is handled at inference time via OOD detection
 
 ---
 
-## 2. Dual-Model Strategy: Teacher (Web) + Student (Mobile)
+# 2. Dual-Model Strategy: Teacher (Cloud) + Student (Mobile) Hybrid Intelligence
 
-One training pipeline produces **two exported artifacts** that share the same class taxonomy, preprocessing convention, and calibration/OOD methodology — so predictions are consistent whether a farmer uses the web app or the offline mobile app.
+One training pipeline produces **two exported AI artifacts** that share the same:
 
-| | **Teacher (Web App)** | **Student (Mobile App)** |
+- Class taxonomy
+- Image preprocessing pipeline
+- Confidence calibration methodology
+- OOD (Out-of-Distribution) detection strategy
+
+This ensures prediction behavior remains consistent across the **Web Application** and **Mobile Application**.
+
+The system follows a **Hybrid Intelligent Inference Architecture**:
+
+- **When the farmer has internet connectivity:** The mobile application uses the **Teacher Model (EfficientNetV2-S)** through the cloud API for maximum accuracy.
+- **When the farmer has no internet connectivity:** The mobile application automatically switches to the **Student Model (MobileNetV3-Large / EfficientNet-Lite)** running completely offline on the device.
+
+This provides the highest possible accuracy while maintaining accessibility in rural areas with unreliable connectivity.
+
+---
+
+## Model Architecture
+
+| | Teacher Model (Cloud AI Engine) | Student Model (Mobile AI Engine) |
 |---|---|---|
-| Architecture | EfficientNetV2-S (21M params) | MobileNetV3-Large / EfficientNet-Lite0 (~4-5M params) |
-| Where it runs | Server (FastAPI + GPU) | On-device (phone CPU/NPU) |
+| Architecture | EfficientNetV2-S (~21M parameters) | MobileNetV3-Large / EfficientNet-Lite0 (~4-5M parameters) |
+| Execution Environment | Cloud Server (FastAPI + GPU) | User Device (CPU/NPU) |
 | Connectivity | Requires internet | Works fully offline |
-| Export format | ONNX + INT8 (server) | TFLite INT8 / ONNX Mobile (INT8) |
-| Accuracy | Highest (reference/gatekeeper) | Slightly lower, distilled from teacher |
-| Latency target | p95 ≤ 150ms (GPU) | ≤ 300-500ms on budget Android CPU |
-| Role | Ground-truth model, retraining hub, fallback for uncertain on-device cases | Primary inference path for farmers with poor/no connectivity |
+| Primary Role | Main prediction engine | Offline fallback engine |
+| Export Format | ONNX + INT8 Quantization | TFLite INT8 / ONNX Mobile INT8 |
+| Accuracy | Highest accuracy reference model | Slightly lower, distilled from teacher |
+| Latency Target | p95 ≤ 150ms (GPU inference) | 300-500ms on budget Android devices |
+| Usage | Web app, online mobile requests, difficult cases | Offline mobile inference |
 
-### Why this split instead of one model for both
+---
 
-- A 21M-param EfficientNetV2-S is impractical on a budget Android phone (slow, large APK, battery drain). A 5M-param MobileNetV3/EfficientNet-Lite runs fast on-device but alone would sacrifice accuracy versus the full model.
-- **Knowledge distillation** (Section 15) trains the small mobile student to mimic the large teacher's output distribution (not just hard labels), recovering most of the accuracy gap that training the small model from scratch would leave on the table.
-- Both share the same calibration and OOD-detection methodology (temperature scaling + energy score), just fitted separately per model, so the "Unknown/Uncertain" behavior feels the same on web and mobile.
+## Why Two Models?
+
+A single model cannot efficiently satisfy both cloud accuracy requirements and mobile limitations.
+
+### Using EfficientNetV2-S Everywhere
+
+**Advantages:**
+
+- Higher accuracy
+- Better feature extraction
+- Stronger performance on complex field images
+
+**Problems:**
+
+- Large model size
+- Slow mobile inference
+- Higher battery consumption
+- Larger application size
+
+### Using MobileNetV3 Everywhere
+
+**Advantages:**
+
+- Lightweight
+- Fast inference
+- Mobile-friendly
+
+**Problems:**
+
+- Lower accuracy
+- Less powerful feature extraction
+- More difficult with complex field conditions
+
+Therefore, the system uses:
 
 ```
-                    ┌─────────────────────┐
-                    │   Shared Training    │
-                    │   Pipeline (§4-14)   │
-                    └──────────┬──────────┘
-                               │
-                  ┌────────────┴────────────┐
-                  ▼                         ▼
-        ┌─────────────────┐       ┌──────────────────────┐
-        │ Teacher Model    │──────▶│ Distillation (§15)   │
-        │ EfficientNetV2-S │       │ trains Student        │
-        └────────┬─────────┘       └──────────┬───────────┘
-                 │                             │
-                 ▼                             ▼
-     ┌───────────────────────┐     ┌────────────────────────┐
-     │ ONNX + INT8 (server)  │     │ TFLite / ONNX Mobile    │
-     │ → FastAPI (§20)       │     │ INT8 → App bundle (§21) │
-     │ → Web App (online)    │     │ → Mobile App (offline)  │
-     └───────────────────────┘     └────────────┬────────────┘
-                 ▲                              │
-                 └──────── Sync (§22) ──────────┘
-                  (uncertain predictions, feedback,
-                   retraining data — when online)
+High Accuracy Requirement
++
+Mobile Offline Requirement
+      ↓
+Teacher + Student Architecture
 ```
 
 ---
+
+## Hybrid Inference Workflow
+
+```
+                Farmer Mobile App
+                       |
+                       |
+                Capture Leaf Image
+                       |
+                       ↓
+              Check Internet Status
+                       |
+          ┌────────────┴────────────┐
+          ▼                         ▼
+   Internet Available          No Internet
+          |                         |
+          ▼                         ▼
+   Upload Image              Local Processing
+          |                         |
+          ▼                         ▼
+
+┌─────────────────────┐   ┌───────────────────┐
+│   Teacher Model      │   │   Student Model    │
+│ EfficientNetV2-S      │   │  MobileNetV3       │
+│  Cloud GPU Server      │   │   On-device        │
+└──────────┬──────────┘   └─────────┬─────────┘
+           |                        |
+           ▼                        ▼
+   Highest Accuracy          Offline Prediction
+           |                        |
+           └─────────────┬─────────────┘
+                          |
+                          ▼
+              Disease Result + Confidence
+                          |
+                          ▼
+                  Farmer Recommendation
+```
+
+---
+
+## Online Mode (Internet Available)
+
+When the farmer has an active internet connection:
+
+```
+Mobile Application
+       |
+       ↓
+   Image Upload
+       |
+       ↓
+FastAPI AI Service
+       |
+       ↓
+EfficientNetV2-S Teacher Model
+       |
+       ↓
+Confidence Calibration
+       |
+       ↓
+   OOD Detection
+       |
+       ↓
+Final Disease Prediction
+```
+
+The Teacher model acts as the **final authority** because it has:
+
+- Larger architecture
+- More parameters
+- Better feature extraction
+- GPU acceleration
+- Latest trained model weights
+
+**Example response:**
+
+```json
+{
+  "crop": "Tomato",
+  "disease": "Late Blight",
+  "confidence": 0.968,
+  "top_predictions": [
+    {
+      "label": "Late Blight",
+      "score": 0.968
+    },
+    {
+      "label": "Early Blight",
+      "score": 0.021
+    },
+    {
+      "label": "Leaf Mold",
+      "score": 0.007
+    }
+  ],
+  "model": "EfficientNetV2-S"
+}
+```
+
+---
+
+## Offline Mode (No Internet)
+
+When connectivity is unavailable:
+
+```
+Mobile Camera
+       |
+       ↓
+Image Preprocessing
+       |
+       ↓
+MobileNetV3 Student Model
+       |
+       ↓
+Local Inference
+       |
+       ↓
+Disease Prediction
+```
+
+The farmer can still receive:
+
+- Disease classification
+- Confidence score
+- Top predictions
+- Treatment recommendation
+- Prevention guidance
+
+No network connection is required.
+
+---
+
+## Confidence-Based Smart Routing
+
+The mobile application performs a confidence check before deciding whether cloud processing is required.
+
+**Example — High Confidence Prediction**
+
+MobileNetV3 Output:
+
+- **Disease:** Tomato Early Blight
+- **Confidence:** 91%
+- **Action:** Return result locally
+
+**Example — Low Confidence Prediction**
+
+MobileNetV3 Output:
+
+- **Disease:** Unknown
+- **Confidence:** 42%
+- **Action:** Send image to Teacher Model when internet is available
+
+**Workflow:**
+
+```
+              Student Model
+                    |
+                    |
+            Confidence Evaluation
+                    |
+        ┌───────────┴───────────┐
+        ▼                       ▼
+ High Confidence          Low Confidence
+        |                       |
+        ▼                       ▼
+ Return Mobile         Send Image to Cloud
+ Prediction                   |
+                              ▼
+                    EfficientNetV2-S Teacher
+                              |
+                              ▼
+                    Final Accurate Prediction
+```
+
+---
+
+## Knowledge Distillation
+
+The Student model is not trained independently.
+
+Instead, it learns from the Teacher model using Knowledge Distillation.
+
+**Traditional training:**
+
+```
+Image
+ |
+ ↓
+Disease Label
+ |
+ ↓
+Student Model
+```
+
+**Knowledge distillation:**
+
+```
+Image
+ |
+ ↓
+Teacher Model
+ |
+ ↓
+Prediction Distribution
+ |
+ ↓
+Student Model Learns Teacher Behavior
+```
+
+**Example — Teacher output:**
+
+```json
+{
+  "Late Blight": 0.94,
+  "Early Blight": 0.04,
+  "Leaf Mold": 0.01,
+  "Healthy": 0.01
+}
+```
+
+Student learns this probability distribution instead of only learning:
+
+```
+Tomato → Late Blight
+```
+
+This allows the lightweight mobile model to recover most of the accuracy lost due to compression.
+
+---
+
+## Shared Calibration and OOD Detection
+
+Both models use the same methodology:
+
+### Temperature Scaling
+
+Improves confidence reliability.
+
+**Before calibration:**
+
+> Prediction: 99% confidence
+
+**After calibration:**
+
+> Prediction: 87% confidence
+
+This provides more realistic confidence values.
+
+### Energy-Based OOD Detection
+
+Prevents incorrect predictions on unknown images.
+
+**Example:**
+
+User uploads:
+
+- Human image
+- Animal image
+- Unknown plant
+- New disease
+
+Instead of:
+
+> Tomato Early Blight - 99%
+
+The system returns:
+
+> Unknown / Unsupported Image
+> Confidence: Low
+
+---
+
+## Continuous Learning Feedback Loop
+
+When internet connectivity is available:
+
+```
+Mobile Application
+        |
+        ↓
+Image + Prediction + Confidence
+        |
+        ↓
+Cloud Storage
+        |
+        ↓
+Human Validation
+        |
+        ↓
+New Field Dataset
+        |
+        ↓
+Retrain Teacher Model
+        |
+        ↓
+Knowledge Distillation
+        |
+        ↓
+Update Student Model
+        |
+        ↓
+Release New Mobile Version
+```
+
+---
+
+## Deployment Architecture
+
+### Cloud Deployment
+
+```
+EfficientNetV2-S
+        |
+        ↓
+   ONNX Export
+        |
+        ↓
+INT8 Quantization
+        |
+        ↓
+FastAPI Service
+        |
+        ↓
+Web Application
+```
+
+### Mobile Deployment
+
+```
+MobileNetV3
+        |
+        ↓
+TFLite Conversion
+        |
+        ↓
+INT8 Quantization
+        |
+        ↓
+Mobile Application Bundle
+        |
+        ↓
+Offline AI Prediction
+```
 
 ## 3. Project Structure
 
