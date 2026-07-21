@@ -23,7 +23,7 @@ const EnvSchema = z.object({
 
   // ─── Datastores (required for Phase 1) ─────────────────────────
   MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
-  REDIS_URL: z.string().min(1, 'REDIS_URL is required'),
+  REDIS_URL: z.string().optional().default('redis://localhost:6379'),
 
   // ─── JWT (used from Phase 2; validated now so config is stable) ─
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),

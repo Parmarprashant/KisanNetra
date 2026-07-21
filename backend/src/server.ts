@@ -23,12 +23,43 @@ const server = http.createServer(app);
 async function start(): Promise<void> {
   try {
     await connectMongoDB();
-    await connectRedis();
-    await ensureBucket();
-    await initializeQdrantCollection();
-    await initSocketServer(server);
-    startWorkers();
-    await registerSchedules();
+    
+    // Optional services (skip if not available in dev)
+    try {
+      await connectRedis();
+    } catch (err) {
+      logger.warn('Redis not available, skipping', { error: err instanceof Error ? err.message : String(err) });
+    }
+    
+    try {
+      await ensureBucket();
+    } catch (err) {
+      logger.warn('S3/MinIO not available, skipping', { error: err instanceof Error ? err.message : String(err) });
+    }
+    
+    try {
+      await initializeQdrantCollection();
+    } catch (err) {
+      logger.warn('Qdrant not available, skipping', { error: err instanceof Error ? err.message : String(err) });
+    }
+    
+    try {
+      await initSocketServer(server);
+    } catch (err) {
+      logger.warn('Socket.io init failed, skipping', { error: err instanceof Error ? err.message : String(err) });
+    }
+    
+    try {
+      startWorkers();
+    } catch (err) {
+      logger.warn('Workers not started', { error: err instanceof Error ? err.message : String(err) });
+    }
+    
+    try {
+      await registerSchedules();
+    } catch (err) {
+      logger.warn('Schedules not registered', { error: err instanceof Error ? err.message : String(err) });
+    }
 
     server.listen(env.PORT, () => {
       logger.info(`🌿 Krishi Raksha API listening on port ${env.PORT}`, {
