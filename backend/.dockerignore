@@ -1,0 +1,29 @@
+# Dependencies / build output — reinstalled/rebuilt inside the image
+node_modules/
+dist/
+coverage/
+
+# Secrets — never bake into the image (provided via env at runtime)
+.env
+.env.local
+.env.*.local
+
+# Logs & OS/editor cruft
+logs/
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# VCS & docs not needed at runtime
+.git/
+.gitignore
+*.md
+Dockerfile
+.dockerignore
+
+# Tests
+src/**/*.test.ts
+tests/

@@ -1,0 +1,112 @@
+# ─── Krishi Raksha — local/dev container stack ───────────────────────────────
+# Brings up the API alongside its self-hosted datastores. MongoDB is NOT here:
+# the app targets MongoDB Atlas (cloud) via MONGODB_URI in backend/.env.
+#
+# Usage:
+#   docker compose up --build
+#
+# The api reads secrets from backend/.env (env_file) but its datastore URLs are
+# OVERRIDDEN below to the in-network service hostnames (redis/qdrant/minio),
+# since the .env values point at localhost for host-run dev.
+#
+# NOTE: not currently deployed — this file is the deployment artifact for Phase 16.
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: krishi-raksha-api:latest
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      # In-network hostnames (override the localhost values in backend/.env).
+      REDIS_URL: redis://redis:6379
+      QDRANT_URL: http://qdrant:6333
+      S3_ENDPOINT: http://minio:9000
+      # MONGODB_URI (Atlas) and all API keys come from env_file.
+    depends_on:
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      minio:
+        condition: service_healthy
+    networks:
+      - krishi
+
+  redis:
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - krishi
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - krishi
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      # Match backend/.env AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY.
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - krishi
+
+  # Reverse proxy — terminates client traffic and forwards to the API
+  # (WebSocket + SSE aware). Enable when you want a single entrypoint on :80.
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+    networks:
+      - krishi
+
+volumes:
+  redis_data:
+  qdrant_data:
+  minio_data:
+
+networks:
+  krishi:
+    driver: bridge

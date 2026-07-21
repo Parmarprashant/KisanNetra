@@ -1,0 +1,44 @@
+
+# Datasets
+Final_KisanNetra_Dataset/
+Final_Plant_Dataset/
+New Plant Diseases Dataset(Augmented)/
+Optimized_KisanNetra_Dataset/
+dataset/
+field_data/
+optimized_dataset_manifest.csv
+optimized_dataset_metadata.json
+field_merge_report.json
+mendeley_page.html
+
+# Node dependencies
+node_modules/
+
+# Build output
+dist/
+coverage/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Cleanup
+cleanup.py
+dataset_loader.py
+*.pyc
+__pycache__/
+
