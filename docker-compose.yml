@@ -1,17 +1,30 @@
 # ─── Krishi Raksha — local/dev container stack ───────────────────────────────
-# Brings up the API alongside its self-hosted datastores. MongoDB is NOT here:
-# the app targets MongoDB Atlas (cloud) via MONGODB_URI in backend/.env.
+# Brings up the API alongside all self-hosted datastores, including MongoDB!
+# Fully self-contained for hackathon use!
 #
 # Usage:
 #   docker compose up --build
 #
 # The api reads secrets from backend/.env (env_file) but its datastore URLs are
-# OVERRIDDEN below to the in-network service hostnames (redis/qdrant/minio),
+# OVERRIDDEN below to the in-network service hostnames (mongodb/redis/qdrant/minio),
 # since the .env values point at localhost for host-run dev.
-#
-# NOTE: not currently deployed — this file is the deployment artifact for Phase 16.
 
 services:
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - krishi
+
   api:
     build:
       context: ./backend
@@ -26,11 +39,14 @@ services:
       NODE_ENV: production
       PORT: "4000"
       # In-network hostnames (override the localhost values in backend/.env).
+      MONGODB_URI: mongodb://mongodb:27017/krishi_raksha
       REDIS_URL: redis://redis:6379
       QDRANT_URL: http://qdrant:6333
       S3_ENDPOINT: http://minio:9000
-      # MONGODB_URI (Atlas) and all API keys come from env_file.
+      # All API keys come from env_file.
     depends_on:
+      mongodb:
+        condition: service_healthy
       redis:
         condition: service_healthy
       qdrant:
@@ -103,6 +119,7 @@ services:
       - krishi
 
 volumes:
+  mongodb_data:
   redis_data:
   qdrant_data:
   minio_data:
