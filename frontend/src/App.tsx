@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { Home, Camera, Settings, History } from 'lucide-react';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
@@ -125,6 +125,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Navigate to="/signin" replace />} />
+          <Route path="/register" element={<Navigate to="/signup" replace />} />
           <Route path="/scan" element={<ScanPage />} />
           <Route path="/history" element={<div><h1>History</h1><p>Your scan history will appear here.</p></div>} />
           <Route path="/settings" element={<div><h1>Settings</h1><p>Application settings go here.</p></div>} />

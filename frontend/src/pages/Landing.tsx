@@ -26,10 +26,10 @@ export default function Landing() {
               <span className="material-symbols-outlined text-[18px]">language</span>
               Language
             </button>
-            <a className="text-lg font-medium text-lg text-primary hover:text-primary-container transition-colors font-semibold" href="/login">Sign In</a>
-            <a className="bg-primary-container text-on-primary text-lg font-medium text-lg px-4 py-2 rounded-lg shadow-brand btn-interact transition-all hover:bg-surface-tint" href="/register">
+            <Link className="text-lg font-medium text-lg text-primary hover:text-primary-container transition-colors font-semibold" to="/signin">Sign In</Link>
+            <Link className="bg-primary-container text-on-primary text-lg font-medium text-lg px-4 py-2 rounded-lg shadow-brand btn-interact transition-all hover:bg-surface-tint" to="/signup">
               Get Started
-            </a>
+            </Link>
           </div>
           {/* Mobile Menu Toggle */}
           <button className="md:hidden text-on-surface p-2">
