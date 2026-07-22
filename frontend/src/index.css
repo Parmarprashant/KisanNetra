@@ -1,0 +1,254 @@
+@import "tailwindcss";
+@source "../index.html";
+@source "./";
+
+@theme {
+  --width-max-width: 1200px;
+  --height-navbar-height: 80px;
+  
+  --text-display-sm: 2.25rem;
+  --text-display-md: 2.5rem;
+  --text-display-lg: 3rem;
+  --text-display-xl: 4rem;
+  --text-display-2xl: 4.5rem;
+  --text-body-sm: 0.875rem;
+  --text-body-md: 1rem;
+  --text-body-lg: 1.125rem;
+  --text-label-sm: 0.75rem;
+  --text-label-md: 0.875rem;
+  --text-label-lg: 1rem;
+  --text-headline-h3: 1.5rem;
+  
+  --color-secondary-fixed: #ffddb3;
+  --color-primary-fixed-dim: #95d695;
+  --color-primary-container: #2d6a35;
+  --color-outline-variant: #c0c9bc;
+  --color-surface-container: #ffebd0;
+  --color-surface: #fff8f3;
+  --color-primary: #11511f;
+  --color-border-default: #E0D9CF;
+  --color-outline: #71796e;
+  --color-bg-base: #F7F5F1;
+  --color-on-secondary-fixed-variant: #633f00;
+  --color-tertiary-fixed-dim: #f1c038;
+  --color-surface-variant: #f4e0c2;
+  --color-on-secondary-fixed: #291800;
+  --color-on-surface-variant: #41493f;
+  --color-on-tertiary-fixed: #251a00;
+  --color-error: #ba1a1a;
+  --color-on-secondary: #ffffff;
+  --color-primary-fixed: #b0f3af;
+  --color-surface-bright: #fff8f3;
+  --color-secondary-container: #feb646;
+  --color-inverse-primary: #95d695;
+  --color-on-primary-fixed: #002106;
+  --color-inverse-surface: #3a2f1b;
+  --color-on-primary-container: #a6e8a5;
+  --color-surface-container-low: #fff2e2;
+  --color-gold-50: #FEFAE8;
+  --color-bg-sunken: #F0EDE8;
+  --color-on-tertiary-container: #ffd362;
+  --color-secondary-fixed-dim: #ffb951;
+  --color-brand-500: #3A8342;
+  --color-status-error-dot: #EF4444;
+  --color-on-background: #241a08;
+  --color-on-surface: #241a08;
+  --color-inverse-on-surface: #ffeed9;
+  --color-tertiary-container: #765a00;
+  --color-brand-50: #EDF6EE;
+  --color-surface-container-highest: #f4e0c2;
+  --color-on-tertiary: #ffffff;
+  --color-surface-container-high: #fae5c8;
+  --color-brand-950: #0A1F0F;
+  --color-error-container: #ffdad6;
+  --color-on-primary: #ffffff;
+  --color-surface-dim: #ecd7ba;
+  --color-on-primary-fixed-variant: #125220;
+  --color-tertiary: #594300;
+  --color-surface-container-lowest: #ffffff;
+  --color-secondary: #825500;
+  --color-surface-tint: #2e6b35;
+  --color-on-tertiary-fixed-variant: #594400;
+  --color-bg-raised: #FFFFFF;
+  --color-status-success-dot: #3A8342;
+  --color-status-offline-dot: #F97316;
+  --color-on-error: #ffffff;
+  --color-background: #fff8f3;
+  --color-on-secondary-container: #704800;
+  --color-on-error-container: #93000a;
+
+  --shadow-xs: 0 1px 2px 0 rgba(26, 20, 16, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(26, 20, 16, 0.1), 0 2px 4px -1px rgba(26, 20, 16, 0.06);
+  --shadow-brand: 0 4px 14px 0 rgba(45, 106, 53, 0.39);
+  --shadow-modal: 0 20px 25px -5px rgba(26, 20, 16, 0.1), 0 10px 10px -5px rgba(26, 20, 16, 0.04);
+
+  --radius-DEFAULT: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+
+  --spacing-max-width: 1200px;
+  --spacing-unit: 8px;
+  --spacing-navbar-height: 60px;
+  --spacing-sidebar-collapsed: 72px;
+  --spacing-sidebar-expanded: 256px;
+
+  --font-label-sm: 'Plus Jakarta Sans', sans-serif;
+  --font-body-md: 'Plus Jakarta Sans', sans-serif;
+  --font-headline-h2: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-label-lg: 'Plus Jakarta Sans', sans-serif;
+  --font-headline-h1: 'Plus Jakarta Sans', sans-serif;
+  --font-display-2xl: 'Syne', sans-serif;
+  --font-headline-h3: 'Plus Jakarta Sans', sans-serif;
+  --font-display-xl: 'Syne', sans-serif;
+  --font-display-lg: 'Syne', sans-serif;
+  --font-caption: 'Plus Jakarta Sans', sans-serif;
+
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  
+  --text-headline-h2: 28px;
+  --text-headline-h2--line-height: 36px;
+  
+  --text-label-lg: 14px;
+  --text-label-lg--line-height: 20px;
+  
+  --text-headline-h1: 32px;
+  --text-headline-h1--line-height: 40px;
+  
+  --text-display-2xl: 72px;
+  --text-display-2xl--line-height: 80px;
+  
+  --text-headline-h3: 24px;
+  --text-headline-h3--line-height: 32px;
+  
+  --text-display-xl: 56px;
+  --text-display-xl--line-height: 64px;
+  
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 56px;
+}
+
+/* Material Symbols fix */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.material-symbols-outlined.fill {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Base resets that were lost */
+@layer base {
+  body {
+    font-family: var(--font-body-md);
+    background-color: var(--color-bg-base);
+    color: var(--color-on-background);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display-lg);
+    color: var(--color-on-background);
+  }
+}
+
+/* Dashboard Layout Fixes (Tailwind + CSS) */
+.app-layout {
+  @apply flex min-h-screen flex-col md:flex-row;
+}
+
+.sidebar {
+  @apply w-full md:w-[256px] bg-bg-raised border-b md:border-b-0 md:border-r border-border-default p-6 flex flex-col z-20 shadow-sm md:shadow-none shrink-0;
+}
+
+.main-content {
+  @apply flex-1 p-6 md:p-10 max-w-[1200px] w-full overflow-y-auto;
+}
+
+.brand-title {
+  @apply text-2xl font-bold text-primary mb-6 md:mb-10 font-display-lg;
+}
+
+.nav-item {
+  @apply px-4 py-3 rounded-lg mb-2 text-on-surface-variant font-semibold flex items-center gap-3 transition-colors no-underline;
+}
+
+.nav-item:hover, .nav-item.active {
+  @apply bg-primary/10 text-primary;
+}
+
+/* Dashboard Cards */
+.card {
+  @apply bg-bg-raised rounded-2xl p-6 border border-border-default/50;
+  box-shadow: var(--shadow-xs);
+}
+
+/* Auth Screens Custom CSS */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.role-card {
+    transition: all 0.2s ease;
+}
+
+.strength-container {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+/* Button & Input Resets */
+.btn-primary {
+  @apply bg-primary-container text-white font-bold rounded-xl py-3 px-6 transition-all duration-200 hover:bg-primary active:scale-[0.99] active:translate-y-[1px] flex items-center justify-center gap-2;
+  box-shadow: var(--shadow-brand);
+}
+
+.input-field {
+  @apply bg-bg-sunken border border-border-default rounded-xl text-on-surface transition-all duration-200 outline-none w-full px-4 py-3 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white;
+}
+
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
+/* Auth Styles */
+@layer components {
+  /* Form Inputs */
+  input[type="text"], input[type="email"], input[type="password"], input[type="tel"], select {
+      @apply border bg-bg-sunken border-border-default rounded-[10px] text-on-surface font-body-md transition-all duration-200 outline-none w-full px-4 py-3;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="tel"]:focus, select:focus {
+      @apply border-primary ring-2 ring-primary/20 bg-white;
+  }
+  
+  /* Role Card Selection */
+  input[type="radio"]:checked + .role-card {
+      @apply border border-primary bg-brand-50 shadow-xs ring-1 ring-primary;
+  }
+  input[type="radio"]:checked + .role-card .role-icon {
+      @apply text-primary bg-primary/10;
+  }
+  
+  /* Strength Meter */
+  .strength-segment {
+      @apply h-1.5 flex-1 rounded-full bg-border-default transition-colors duration-300;
+  }
+  .strength-1 .seg-1 { @apply bg-status-error-dot; }
+  .strength-2 .seg-1, .strength-2 .seg-2 { @apply bg-status-offline-dot; }
+  .strength-3 .seg-1, .strength-3 .seg-2, .strength-3 .seg-3 { @apply bg-tertiary-fixed-dim; }
+  .strength-4 .seg-1, .strength-4 .seg-2, .strength-4 .seg-3, .strength-4 .seg-4 { @apply bg-status-success-dot; }
+}
